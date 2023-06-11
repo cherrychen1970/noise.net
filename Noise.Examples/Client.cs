@@ -62,6 +62,7 @@ namespace Noise.Examples
             foreach (var message in messages)
             {
                 Memory<byte> request = Encoding.UTF8.GetBytes(message);
+                Console.WriteLine($"message size: {request.Length}");
 
                 // Send the message to the server.
                 var bytesWritten = _transport.WriteMessage(request.Span, buffer);

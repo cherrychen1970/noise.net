@@ -71,25 +71,5 @@ namespace Noise
             _output.Flush();
         }
         public override bool CanSeek => _input.CanSeek;
-
-
-
-        private async Task Send(byte[] message)
-        {
-            await Task.Delay(1000);
-            await _output.WriteAsync(message);
-        }
-
-        private async Task<byte[]> Receive(int length)
-        {
-            byte[] buf = new byte[length];
-
-            // TODO : probably should loop until you read them all
-            int len = await _input.ReadAsync(buf, 0, length);
-
-            if (len != length)
-                throw new System.IO.IOException("read from thefailed");
-            return buf;
-        }
     }
 }
