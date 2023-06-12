@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Net;
+using System.Net.Sockets;
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Text;
@@ -42,21 +44,32 @@ namespace Noise.Examples
             var clientPublicKey = Convert.FromHexString("FA0DBBF96EE194CD49325A7AEFD52EABE6D638A17A60CA4796C4F08A92221F6C");
             var serverPrivateKey = Convert.FromHexString("B321CA343B77CFF728F6F5346F360E54CE4C3CB50ACDE0C4D7EF88CC288C14C6");
             var serverPublicKey = Convert.FromHexString("704A34B610576F037D44E53DF80D52B40307ECC04523DA06BE8599DB111B6523");
-
+#if false
             // Initialize and run the client.
             var clientTask = Task.Run(async () =>
             {
-                var client = new Client(protocol, duplex.A);
+                using TcpClient tcpClient = new TcpClient();
+                await tcpClient.ConnectAsync("127.0.0.1", 7001);
+
+                using NetworkStream netStream = tcpClient.GetStream();
+
+                var client = new Client(protocol, netStream);
                 await client.Handshake(clientPrivateKey, serverPublicKey);
                 await client.SendMessages(messages);
             });
-
+#endif
             // Initialize and run the server.
             var serverTask = Task.Run(async () =>
             {
                 try
                 {
-                    var server = new Server(protocol, duplex.B);
+                    TcpListener tcpListener = new TcpListener(IPAddress.Loopback, 7001);
+                    tcpListener.Start();  // this will start the server
+                    TcpClient client = tcpListener.AcceptTcpClient();  //if a connection exists, the server will accept it
+                    Console.WriteLine("here");
+                    NetworkStream ns = client.GetStream();
+
+                    var server = new Server(protocol, ns);
                     await server.Handshake(serverPrivateKey, clientPublicKey);
                     await server.WaitMessages();
                 }
@@ -69,7 +82,7 @@ namespace Noise.Examples
 
             try
             {
-                Task.WaitAll(serverTask, clientTask);
+                Task.WaitAll(serverTask);
 
             }
             catch (System.Exception ex)

@@ -38,6 +38,7 @@ namespace Noise.Examples
         public async Task Handshake(byte[] privateKey, byte[] serverPublicKey)
         {
             var buffer = new byte[Protocol.MaxMessageLength];
+      
 
             using (var handshakeState = _protocol.Create(true, s: privateKey, rs: serverPublicKey))
             {
@@ -45,13 +46,14 @@ namespace Noise.Examples
                 var (bytesWritten, _, _) = handshakeState.WriteMessage(null, buffer);
                 //await clientToServer.Send(buffer.Slice(bytesWritten));
                 await _stream.WriteAsync(buffer.Slice(bytesWritten));
-
+  
                 // Receive the second handshake message from the server.
                 //var received = await serverToClient.Receive();
                 var received = new byte[1024];
                 var bytesRead = await _stream.ReadAsync(received, 0, 1024);
                 var (_, _, transport) = handshakeState.ReadMessage(received.Slice(bytesRead), buffer);
                 _transport = transport;
+               
             }
         }
         public async Task SendMessages(List<string> messages)
