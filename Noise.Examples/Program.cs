@@ -44,6 +44,8 @@ namespace Noise.Examples
             var clientPublicKey = Convert.FromHexString("FA0DBBF96EE194CD49325A7AEFD52EABE6D638A17A60CA4796C4F08A92221F6C");
             var serverPrivateKey = Convert.FromHexString("B321CA343B77CFF728F6F5346F360E54CE4C3CB50ACDE0C4D7EF88CC288C14C6");
             var serverPublicKey = Convert.FromHexString("704A34B610576F037D44E53DF80D52B40307ECC04523DA06BE8599DB111B6523");
+
+
 #if false
             // Initialize and run the client.
             var clientTask = Task.Run(async () =>
@@ -66,12 +68,14 @@ namespace Noise.Examples
                     TcpListener tcpListener = new TcpListener(IPAddress.Loopback, 7001);
                     tcpListener.Start();  // this will start the server
                     TcpClient client = tcpListener.AcceptTcpClient();  //if a connection exists, the server will accept it
-                    Console.WriteLine("here");
-                    NetworkStream ns = client.GetStream();
+                    NetworkStream netStream = client.GetStream();
 
-                    var server = new Server(protocol, ns);
+                    var server = new NoiseServer(protocol, netStream);
                     await server.Handshake(serverPrivateKey, clientPublicKey);
-                    await server.WaitMessages();
+
+                    var echoClient = new EchoClient(server.GetNoiseStream());
+                    await echoClient.Run();
+
                 }
                 catch (System.Exception ex)
                 {
