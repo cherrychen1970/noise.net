@@ -73,8 +73,10 @@ namespace Noise.Examples
                     var server = new NoiseServer(protocol, netStream);
                     await server.Handshake(serverPrivateKey, clientPublicKey);
 
-                    var echoClient = new EchoClient(server.GetNoiseStream());
-                    await echoClient.Run();
+                    //var echoClient = new EchoClient(server.GetNoiseStream());
+                    //await echoClient.Run();
+                    var echo = new EchoServer(server.GetNoiseStream());
+                    await echo.Run();
 
                 }
                 catch (System.Exception ex)

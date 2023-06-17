@@ -60,7 +60,7 @@ namespace Noise.Examples
         byte[] noiseWriteBuffer = new byte[Protocol.MaxMessageLength];
         public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
         {
-            var bytesWritten = _transport.WriteMessage(buffer, noiseWriteBuffer);
+            var bytesWritten = _transport.WriteMessage(buffer.Skip(offset).Take(count).ToArray(), noiseWriteBuffer);
             return _messageStream.SendMessage(noiseWriteBuffer, bytesWritten);
         }
 

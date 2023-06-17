@@ -5,22 +5,20 @@ namespace Noise.Examples
 {
     public class EchoServer
     {
-
         Stream _stream;
-
-
+        byte[] buffer = new byte[Protocol.MaxMessageLength];
         public EchoServer(Stream stream)
         {
             _stream = stream;
         }
 
-        public async Task WaitMessages()
+        public async Task Run()
         {
-            var received = new byte[Protocol.MaxMessageLength];
-            for (; ; )
+            while (true)
             {
-                int bytesRead = await _stream.ReadAsync(received);
-                await _stream.WriteAsync(received,0, bytesRead);
+                int bytesRead = await _stream.ReadAsync(buffer);
+                Console.WriteLine($"Received: {bytesRead}");
+                await _stream.WriteAsync(buffer, 0, bytesRead);
             }
         }
     }
